@@ -8,35 +8,40 @@ const Profile = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    const fetchMyOrders = async () => {
-      try {
-        const res = await fetch('/api/orders/myorders', {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setOrders(Array.isArray(data) ? data : []);
-        } else {
-          // Token obsolete or 401: clear and bounce
-          if (res.status === 401) {
-             logout();
-             navigate('/login');
-          }
-          setOrders([]);
+useEffect(() => {
+  if (!user) {
+    navigate('/login');
+    return;
+  }
+
+  const fetchMyOrders = async () => {
+    try {
+      const res = await fetch('/api/orders/myorders', {
+        headers: {
+          Authorization: `Bearer ${user.token}`
         }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setOrders(Array.isArray(data) ? data : []);
+      } else {
+        if (res.status === 401) {
+          logout();
+          navigate('/login');
+        }
+        setOrders([]);
       }
-    };
-    fetchMyOrders();
-  }, [user, navigate]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMyOrders();
+}, [user, navigate, logout]);
 
   const handleLogout = () => {
     logout();
