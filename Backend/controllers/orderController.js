@@ -5,12 +5,18 @@ const sendEmail=require("../utils/sendmail");
 
 exports.createOrder=async(req,res)=>{
     try{
-        const {item,totalAmount,address,paymentId}=req.body;
+        const {totalAmount,address,paymentId}=req.body;
+        const requestedItems=req.body.item || req.body.items || [];
+        const item=Array.isArray(requestedItems) ? requestedItems.map((cartItem)=>({
+            productId:cartItem.productId,
+            quantity:cartItem.quantity || cartItem.qty || 1,
+            price:cartItem.price
+        })) : [];
         if(!item || item.length===0 || !totalAmount || !address || !paymentId){
             return res.status(400).json({message:"All fields are required"});
         }
 
-        const orderData = await order.create({user: req.user && req.user._id, item, totalAmount, address, paymentId});
+        const orderData = await order.create({user: req.user._id, item, totalAmount, address, paymentId});
 
         // send confirmation and respond
         await sendEmail(req.user ? req.user.email : "", "Order Confirmation", `Your order with id ${orderData._id} has been placed successfully.`);
@@ -49,7 +55,7 @@ exports.orderStatus=async(req,res)=>{
         if(!status || !["pending","shipped","delivered"].includes(status)){
             return res.status(400).json({message:"Invalid status"});
         }
-        const orderData=await order.findByIdAndUpdate(req.params.id,{status},{new:true});
+        const orderData=await order.findByIdAndUpdate(req.params.id,{status},{new:true}).populate("user","email");
         if(orderData){
             await sendEmail(orderData.user.email,"Order Status Update",`Your order with id ${orderData._id} is now ${status}.`);
             res.json(orderData);

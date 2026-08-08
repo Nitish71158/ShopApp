@@ -15,6 +15,11 @@ const Checkout = () => {
   });
 
   const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const orderItems = cartItems.map((item) => ({
+    productId: item.productId,
+    quantity: item.qty,
+    price: item.price
+  }));
 
   const handlePayment = async () => {
     try {
@@ -56,7 +61,7 @@ const Checkout = () => {
                 Authorization: `Bearer ${user.token}`
               },
               body: JSON.stringify({
-                items: cartItems,
+                item: orderItems,
                 totalAmount: totalPrice,
                 address,
                 paymentId: response.razorpay_payment_id
@@ -98,7 +103,7 @@ const Checkout = () => {
         Authorization: `Bearer ${user.token}`
       },
       body: JSON.stringify({
-        items: cartItems,
+        item: orderItems,
         totalAmount: totalPrice,
         address,
         paymentId: 'bypass_txn_' + Date.now()
