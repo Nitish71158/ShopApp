@@ -6,7 +6,7 @@ dotenv.config();
 const app=express();
 app.use(express.json());
 
-const PORT=process.env.PORT || 5000;
+const PORT=process.env.PORT || 3000;
 
 const cors=require("cors");
 const envOrigins=(process.env.CORS_ORIGIN || process.env.FRONTEND_URL || process.env.CLIENT_URL || "")

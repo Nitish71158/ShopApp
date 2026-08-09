@@ -8,8 +8,8 @@
     "dev:server": "npm run dev --prefix Backend",
     "dev:client": "npm start --prefix frontend",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build": "npm run build --prefix frontend",
-    "start": "npm start --prefix Backend"
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd Backend && npm start"
   },
   "keywords": [
     "nitish"
