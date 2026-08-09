@@ -1,14 +1,11 @@
 const mongoose=require('mongoose');
+
 const dns=require("dns");
 
-const dnsServers=(process.env.DNS_SERVERS || "")
-    .split(",")
-    .map((server)=>server.trim())
-    .filter(Boolean);
-
-if(dnsServers.length){
-    dns.setServers(dnsServers);
-}
+dns.setServers([
+    '1.1.1.1',
+    '8.8.8.8'
+])
 
 const connectDb=async()=>{
     try {
