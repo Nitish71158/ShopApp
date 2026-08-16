@@ -30,16 +30,34 @@ app.use(cors({
 }));
 
 const connectDb=require("./config/db");
-connectDb();
+
+const ensureDb=async(req,res,next)=>{
+    try{
+        await connectDb();
+        next();
+    }catch(error){
+        res.status(500).json({
+            message:"Database connection failed",
+            error:error.message
+        });
+    }
+};
+
 const Root=require("./routes/authRoutes");
 const productRoutes=require("./routes/productRoute");
 const paymentRoutes=require("./routes/paymentRoute");
-app.use("/api/auth",Root);
-app.use("/api/products",productRoutes);
-app.use("/api/orders",require("./routes/orderRoutes"));
+app.get("/api/health",(req,res)=>{
+    res.json({
+        status:"ok",
+        hasMongoUri:Boolean(process.env.MONGO_URI)
+    });
+});
+app.use("/api/auth",ensureDb,Root);
+app.use("/api/products",ensureDb,productRoutes);
+app.use("/api/orders",ensureDb,require("./routes/orderRoutes"));
 app.use("/api/payment",paymentRoutes);
 app.use("/api/payments",paymentRoutes);
-app.use("/api/analytics",require("./routes/analyticsRoute"));
+app.use("/api/analytics",ensureDb,require("./routes/analyticsRoute"));
 app.use("/api",(req,res)=>{
     res.status(404).json({message:"API route not found"});
 });
